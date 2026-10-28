@@ -1,5 +1,5 @@
-// Version 1.4 : mises à jour réseau d'abord, copie hors connexion en secours.
-const CACHE = 'ma-cinetheque-v14';
+// Version 1.5 : mises à jour réseau d'abord, copie hors connexion en secours.
+const CACHE = 'ma-cinetheque-v15';
 const ASSETS = ['./index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
