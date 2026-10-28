@@ -30,7 +30,13 @@ $('google-disconnect').onclick=()=>{if(driveToken&&window.google?.accounts?.oaut
 $('google-pull').onclick=()=>withDrive(async()=>{
  const file=await driveFile();if(!file){syncLabel('Aucune collection commune sur Drive. Sur le premier appareil, utilise « Envoyer vers Drive » avec une collection vide.');return}
  const data=await driveRead(file);const state=savedSync();
- if(dirty()||(!state&&db.length>0)){syncLabel('Modifications locales détectées : réception bloquée pour éviter de les perdre. Exporte une sauvegarde avant toute décision.',true);return}
+ if(dirty()||(!state&&db.length>0)){
+   if(db.length>0){
+    if(!confirm('Cet appareil contient '+db.length+' titre(s) avec des modifications locales. Pour recevoir Drive, une sauvegarde locale doit être téléchargée. Continuer ?'))return;
+    try{download(makeBackup(db),'secours_avant_reception_drive')}catch(e){syncLabel('Sauvegarde impossible : réception annulée. '+e.message,true);return}
+    if(!confirm('As-tu vérifié que la sauvegarde de cet appareil a bien été téléchargée ? Sans cette sauvegarde, les modifications locales seront perdues.'))return;
+   }else if(!confirm('La collection locale est vide, mais des modifications anciennes sont signalées. Recevoir la collection Drive et effacer cet indicateur local ?'))return;
+  }
  if(!confirm('Recevoir '+data.length+' titre(s) depuis Drive et remplacer la copie locale ?'))return;
  db=data;localStorage.setItem(KEY,JSON.stringify(db));previousSnapshot=JSON.stringify(db);setSync(file.id,file.version);render();renderDeviceStatus();syncLabel('Collection reçue : '+db.length+' titre(s).');
 });
