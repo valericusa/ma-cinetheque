@@ -24,13 +24,14 @@ self.addEventListener('fetch', event => {
         }
         return response;
       } catch (_) {
-        return (await caches.match('./index.html')) || Response.error();
+        const cache = await caches.open(CACHE);
+        return (await cache.match('./index.html', {ignoreSearch: true})) || Response.error();
       }
     })());
     return;
   }
   event.respondWith((async () => {
-    const cached = await caches.match(req);
+    const cached = await caches.match(req, {ignoreSearch: true});
     if (cached) return cached;
     return fetch(req);
   })());
