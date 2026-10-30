@@ -760,7 +760,7 @@ check.onclick=async()=>{
 'use strict';
 const BASE='cinetheque-drive-baseline-v16';
 const section=document.createElement('section');section.className='status';section.style.marginTop='14px';
-const heading=document.createElement('strong');heading.textContent='🔄 Version 2.5.3 — fusion réelle contrôlée';
+const heading=document.createElement('strong');heading.textContent='🔄 Version 2.5.4 — fusion réelle contrôlée';
 const intro=document.createElement('p');intro.textContent='Prépare une fusion des modifications de cet appareil et de Google Drive. Vérifie le résultat, puis confirme séparément l’envoi et la mise à jour locale. Un seul appareil à la fois.';
 const prepare=document.createElement('button');prepare.type='button';prepare.textContent='Préparer la synchronisation 2.5';
 const output=document.createElement('p');output.style.whiteSpace='pre-line';output.setAttribute('role','status');
@@ -885,17 +885,28 @@ apply.onclick=async()=>{
   if(String(await driveRevision(p.fileId))!==p.revision)throw Error('Drive a changé juste avant l’envoi.');
   const res=await driveFetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(p.fileId)+'?uploadType=media&fields=id,version',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({format:'ma-cinetheque-drive',version:1,data:merged})});
   wrote=true;const updated=await res.json();
-  // Google Drive peut incrémenter la révision entre le PATCH et la lecture suivante.
-  // On vérifie une fenêtre stable AVANT/APRÈS la lecture, sans supposer que
-  // updated.version reste la révision courante. Ne jamais ignorer un changement réel.
-  const latest=await driveFile();
-  if(!latest||latest.id!==p.fileId)throw Error('Fichier Drive introuvable après envoi.');
-  const actual=await remoteSnapshot(latest);
-  if(!eq(actual.data,merged))throw Error('Vérification après envoi non conforme : ne modifie pas cet appareil et conserve les sauvegardes.');
+  // 2.5.4 : après PATCH, la révision Drive peut progresser avant que la
+  // lecture des métadonnées et du contenu soit cohérente. Vérifier le contenu
+  // ET une révision stable, avec quelques nouvelles lectures sans nouvel envoi.
+  // Ne jamais déclarer une réussite si le contenu ou la révision reste instable.
+  let actual=null,postWriteIssue='';
+  for(let attempt=0;attempt<4;attempt++){
+   try{
+    const latest=await driveFile();
+    if(!latest||latest.id!==p.fileId)throw Error('Fichier Drive introuvable après envoi.');
+    const candidate=await remoteSnapshot(latest);
+    const finalRevision=String(await driveRevision(p.fileId));
+    if(candidate.revision!==finalRevision){postWriteIssue='Révision Drive encore instable après envoi.';}
+    else if(!eq(candidate.data,merged)){postWriteIssue='Le contenu Drive relu ne correspond pas à la fusion envoyée.';}
+    else {actual=candidate;break;}
+   }catch(err){postWriteIssue=err.message;}
+   if(attempt<3)await new Promise(resolve=>setTimeout(resolve,400*(attempt+1)));
+  }
+  if(!actual)throw Error('Vérification après envoi non confirmée : '+postWriteIssue+' Conserve les sauvegardes et contrôle Drive avant toute nouvelle tentative.');
   db=clone(merged);localStorage.setItem(KEY,JSON.stringify(db));previousSnapshot=JSON.stringify(db);
   localStorage.setItem(BASE,JSON.stringify({fileId:p.fileId,revision:actual.revision,data:clone(merged)}));
   setSync(p.fileId,actual.revision);openedId=null;render();renderDeviceStatus();
-  output.textContent='✓ Fusion envoyée et relue sur Google Drive.\n✓ Cet appareil mis à jour : '+merged.length+' titre(s).\n✓ Nouvelle révision Drive : '+actual.revision+'.\n\nL’autre appareil pourra maintenant préparer sa propre fusion.';
+  output.textContent='✓ Fusion envoyée et vérifiée sur Google Drive (2.5.4).\n✓ Cet appareil mis à jour : '+merged.length+' titre(s).\n✓ Nouvelle révision Drive : '+actual.revision+'.\n\nL’autre appareil pourra maintenant préparer sa propre fusion.';
   pending=null;decisions.replaceChildren();
  }catch(e){output.textContent=(wrote?'⚠ Un envoi Drive a pu avoir lieu. Ne relance pas immédiatement : conserve les sauvegardes et vérifie l’état Drive.\n':'Synchronisation arrêtée avant envoi.\n')+e.message+'\n\nPour réessayer, appuie sur « Préparer la synchronisation 2.5 ».'}
  finally{pending=null;localSaved=false;driveSaved=false;updateBackupButtons();prepare.disabled=false;driveBusy=false}
