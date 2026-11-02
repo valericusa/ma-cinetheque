@@ -1,5 +1,5 @@
-// Version 1.5 : mises à jour réseau d'abord, copie hors connexion en secours.
-const CACHE = 'ma-cinetheque-v15';
+// Version 2.62 : mises à jour réseau d'abord, copie hors connexion en secours.
+const CACHE = 'ma-cinetheque-v27';
 const ASSETS = ['./index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -24,14 +24,13 @@ self.addEventListener('fetch', event => {
         }
         return response;
       } catch (_) {
-        const cache = await caches.open(CACHE);
-        return (await cache.match('./index.html', {ignoreSearch: true})) || Response.error();
+        return (await caches.match('./index.html')) || Response.error();
       }
     })());
     return;
   }
   event.respondWith((async () => {
-    const cached = await caches.match(req, {ignoreSearch: true});
+    const cached = await caches.match(req);
     if (cached) return cached;
     return fetch(req);
   })());
