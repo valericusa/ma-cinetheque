@@ -1,24 +1,7 @@
-# Ma Cinéthèque — version 2.62
+# Ma Cinéthèque — 2.7.7 CORRECTION TEST
 
-Mise à jour de l'application personnelle de suivi des films et séries.
+Déployer uniquement dans le dossier `test-v15` de GitHub Pages. Ne pas remplacer l'application principale 2.61.
 
-## Nouveautés
-- Collection en mode Liste (titres élargis, statut à droite de la note) ou Vignettes (affiche, titre, année, note, statut).
-- Recherche et sélection d'affiches pour les séries via TVmaze et les films via le catalogue Apple iTunes (sans compte API ni abonnement).
-- Ajout d'affiches aux titres déjà enregistrés depuis leur fiche.
-- Les fichiers de synchronisation/sauvegarde ne stockent que les URL des affiches, pas les fichiers images.
+Correction : la préparation accepte une référence ancienne dont seuls les champs facultatifs `posterUrl`, `releaseYear`, `posterLink` sont absents et dont toutes les valeurs présentes restent identiques. La référence est normalisée en mémoire, sans écriture locale ni Drive pendant la préparation. Identifiants uniques et contrôles de fusion/révision/sauvegardes conservés.
 
-## Installation GitHub Pages
-Remplacer à la racine du dépôt **index.html** et **sw.js** par les fichiers de ce ZIP, puis valider la modification. Le reste du projet peut rester inchangé. Si l'ancien écran reste affiché sur Android, fermer puis rouvrir l'application installée et vérifier « Version 2.62 » sous le titre.
-
-## Données
-Les données existantes dans le navigateur ne sont ni réinitialisées ni remplacées par cette mise à jour. L'affiche d'un ancien titre peut être complétée en ouvrant sa fiche dans Collection. Les affiches requièrent Internet pour apparaître, mais les titres, notes, épisodes et autres données restent accessibles hors ligne.
-
-Archive nettoyée : le dossier historique « test-v15 » est exclu de ce ZIP. Seuls les fichiers de la version principale sont inclus ; un éventuel ancien dossier de test déjà présent sur GitHub n’a pas besoin d’être modifié.
-
-## Correction 2.62
-Numéro de version unique (la 2.61 était déjà utilisée) et nouvelle clé de cache pour déclencher une mise à jour de la PWA. Aucun changement de structure des données ni de synchronisation.
-
-
-## 2.7.6 DIAGNOSTIC
-Ajout d’un diagnostic local en lecture seule sur la référence v16. Aucun changement du moteur de synchronisation. Ne pas promouvoir en production.
+Test : ouvrir Synchronisation, connecter Google si nécessaire, cliquer uniquement sur « Préparer la synchronisation », envoyer la capture du résultat. Ne pas confirmer ni synchroniser.
