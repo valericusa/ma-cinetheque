@@ -18,3 +18,7 @@ Archive nettoyée : le dossier historique « test-v15 » est exclu de ce ZIP. Se
 
 ## Correction 2.62
 Numéro de version unique (la 2.61 était déjà utilisée) et nouvelle clé de cache pour déclencher une mise à jour de la PWA. Aucun changement de structure des données ni de synchronisation.
+
+
+## 2.7.6 DIAGNOSTIC
+Ajout d’un diagnostic local en lecture seule sur la référence v16. Aucun changement du moteur de synchronisation. Ne pas promouvoir en production.
