@@ -1,5 +1,5 @@
-// Version 2.62 : mises à jour réseau d'abord, copie hors connexion en secours.
-const CACHE = 'ma-cinetheque-v277-test';
+// Version 2.7.8 : mises à jour réseau d'abord, copie hors connexion en secours.
+const CACHE = 'ma-cinetheque-v278-cinema';
 const ASSETS = ['./index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './projecteur-cinema.webp'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
